@@ -40,15 +40,13 @@ def RMSE(estimates, actual):
     return math.sqrt(mse)
 
 
-def Estimate1(n=7, m=1000):
+def Estimate1(mu = 0, sigma = 1, n=7, m=1000):
     """Evaluates RMSE of sample mean and median as estimators.
 
     n: sample size
     m: number of iterations
     """
-    mu = 0
-    sigma = 1
-
+    
     means = []
     medians = []
     for _ in range(m):
@@ -63,15 +61,13 @@ def Estimate1(n=7, m=1000):
     print('rmse median', RMSE(medians, mu))
 
 
-def Estimate2(n=7, m=1000):
+def Estimate2(mu = 0, sigma = 1, n=7, m=1000):
     """Evaluates S and Sn-1 as estimators of sample variance.
 
     n: sample size
     m: number of iterations
     """
-    mu = 0
-    sigma = 1
-
+    
     estimates1 = []
     estimates2 = []
     for _ in range(m):
@@ -86,13 +82,12 @@ def Estimate2(n=7, m=1000):
     print('mean error unbiased', MeanError(estimates2, sigma**2))
 
 
-def Estimate3(n=7, m=1000):
+def Estimate3(lam = 2, n=7, m=1000):
     """Evaluates L and Lm as estimators of the exponential parameter.
 
     n: sample size
     m: number of iterations
     """
-    lam = 2
 
     means = []
     medians = []
