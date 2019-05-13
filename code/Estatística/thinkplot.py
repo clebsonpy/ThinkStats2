@@ -320,6 +320,15 @@ def FillBetween(xs, y1, y2=None, where=None, **options):
     plt.fill_between(xs, y1, y2, where, **options)
 
 
+def BoxPlot(x, **options):
+    """
+    
+    """
+    options = _Underride(d = options)
+    dic = plt.boxplot(x, **options)
+    return dic
+    
+
 def Bar(xs, ys, **options):
     """Plots a line.
 
@@ -867,6 +876,7 @@ hlines = Hlines
 fill_between = FillBetween
 text = Text
 scatter = Scatter
+boxplot = BoxPlot
 pmf = Pmf
 pmfs = Pmfs
 hist = Hist
