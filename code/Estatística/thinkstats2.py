@@ -2658,6 +2658,7 @@ def LeastSquares(xs, ys):
     """
     meanx, varx = MeanVar(xs)
     meany = Mean(ys)
+    print(meany, meanx)
 
     slope = Cov(xs, ys, meanx, meany) / varx
     inter = meany - slope * meanx
