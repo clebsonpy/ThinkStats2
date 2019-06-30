@@ -2797,7 +2797,6 @@ def PearsonMedianSkewness(xs):
     gp = 3 * (mean - median) / std
     return gp
 
-
 class FixedWidthVariables(object):
     """Represents a set of variables in a fixed width file."""
 
