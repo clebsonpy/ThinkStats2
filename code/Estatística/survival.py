@@ -389,7 +389,7 @@ def ResampleSurvival(resp, iters=101):
     _, sf = EstimateMarriageSurvival(resp)
     thinkplot.Plot(sf)
 
-    low, high = resp.agemarry.min(), resp.agemarry.max()
+    low, high = resp.min(), resp.max()
     ts = np.arange(low, high, 1/12.0)
 
     ss_seq = []
