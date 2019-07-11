@@ -128,7 +128,7 @@ class Interpolator(object):
         return y
 
 
-# When we plot Hist, Pmf and Cdf objects, they don't appear in
+# When we plot , Pmf and Cdf objects, they don't appear in
 # the legend unless we override the default label.
 DEFAULT_LABEL = '_nolegend_' 
 
@@ -136,7 +136,7 @@ DEFAULT_LABEL = '_nolegend_'
 class _DictWrapper(object):
     """An object that contains a dictionary."""
 
-    def __init__(self, obj=None, label=None):
+    def __init__(self, obj=None, label=None, bins=None):
         """Initializes the distribution.
 
         obj: Hist, Pmf, Cdf, Pdf, dict, pandas Series, list of pairs
@@ -144,6 +144,7 @@ class _DictWrapper(object):
         """
         self.label = label if label is not None else DEFAULT_LABEL
         self.d = {}
+        self.obj = obj
 
         # flag whether the distribution is under a log transform
         self.log = False
@@ -159,7 +160,7 @@ class _DictWrapper(object):
         elif isinstance(obj, (_DictWrapper, Cdf, Pdf)):
             self.d.update(obj.Items())
         elif isinstance(obj, pandas.Series):
-            self.d.update(obj.value_counts().iteritems())
+            self.d.update(obj.value_counts(bins=bins).iteritems())
         else:
             # finally, treat it like a list
             self.d.update(Counter(obj))
@@ -285,6 +286,9 @@ class _DictWrapper(object):
     def SetDict(self, d):
         """Sets the dictionary."""
         self.d = d
+        
+    def GetData(self):
+        return self.obj.values()
 
     def Values(self):
         """Gets an unsorted sequence of values.
