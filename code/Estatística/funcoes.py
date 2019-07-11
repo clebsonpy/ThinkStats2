@@ -3,6 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 import thinkplot
+import thinkstats2
 
 def dados(dir, label):
     
@@ -35,3 +36,29 @@ def annual(dados, month_start_year_hydrologic):
     peak = pd.Series(max_vazao, index=idx_vazao, name='VMA')
 
     return peak
+
+def dados_media(dados, freq='M'):
+    dados = dados.groupby(pd.Grouper(freq=freq)).mean()
+    return dados
+
+def dados_acumulado(dados, freq='M'):
+    dados = dados.groupby(pd.Grouper(freq=freq)).sum()
+    return dados
+
+def plot_percentil(dados_chuva, dados_vazao):
+    dados_month = pd.DataFrame([dados_chuva, dados_vazao])
+    dados_month = dados_month.T
+    
+    dados_month = dados_month.dropna(subset=[dados_chuva.name, dados_vazao.name])
+    bins = np.arange(0, 400, 40)
+    indices = np.digitize(dados_month[dados_chuva.name], bins)
+    groups = dados_month.groupby(indices)
+    
+    mean_chuva = [group[dados_chuva.name].mean() for i, group in groups]
+    cdfs = [thinkstats2.Cdf(group[dados_vazao.name]) for i, group in groups]
+    
+    for percent in [75, 50, 25]:
+        vazao_percentiles = [cdf.Percentile(percent) for cdf in cdfs]
+        label = '%dth' % percent
+        thinkplot.Plot(mean_chuva, vazao_percentiles, label=label)
+        
