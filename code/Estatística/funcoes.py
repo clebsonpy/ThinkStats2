@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import thinkplot
 import thinkstats2
+import scipy.stats as ss
 
 def dados(dir, label):
     
@@ -43,6 +44,8 @@ def dados_media(dados, freq='M'):
 
 def dados_acumulado(dados, freq='M'):
     dados = dados.groupby(pd.Grouper(freq=freq)).sum()
+    if freq == 'A':
+        return dados.loc[dados.values > 1000]
     return dados
 
 def plot_percentil(dados_chuva, dados_vazao):
@@ -59,6 +62,32 @@ def plot_percentil(dados_chuva, dados_vazao):
     
     for percent in [75, 50, 25]:
         vazao_percentiles = [cdf.Percentile(percent) for cdf in cdfs]
-        label = '%dth' % percent
+        label = '%d°' % percent
         thinkplot.Plot(mean_chuva, vazao_percentiles, label=label)
-        
+
+def expon_distribution(dados):
+    
+    mu,sigma=ss.expon.fit(dados)
+    lin = np.linspace(0, dados.max(), num=100)
+    
+    expon_cdf = ss.expon.cdf(lin, mu, sigma)
+    plt.plot(lin, expon_cdf, color='black')
+    
+def normal_pdf(dados):
+    
+    mean = dados.mean()
+    std_dev = dados.std()
+    lin = ss.norm.rvs(size=10000, loc=mean, scale=std_dev) 
+    x = np.sort(lin)
+    normal = ss.norm.pdf(x, mean, std_dev)
+    plt.plot(x, normal, color='black')
+
+    
+def normal_cdf(dados, label):
+    
+    mean = dados.mean()
+    std_dev = dados.std()
+    lin = ss.norm.rvs(size=10000, loc=mean, scale=std_dev) 
+    x = np.sort(lin)
+    normal = ss.norm.cdf(x, mean, std_dev)
+    plt.plot(x, normal, color='black', label=label)
