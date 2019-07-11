@@ -1,4 +1,7 @@
-import numpy
+import numpy as np
+import math
+import thinkstats2
+import thinkplot
 
 from stats_build import StatsBuild
 from scipy.stats import genextreme
@@ -64,8 +67,60 @@ class Gev(StatsBuild):
         inteval = genextreme.interval(alpha, c=self.shape, loc=self.loc, scale=self.scale)
         return inteval
 
-    def plot_cdf(self):
-        pass
+    def MeanError(self, estimates, actual):
+        """Computes the mean error of a sequence of estimates.
 
-    def plot_pdf(self):
-        pass
+        estimate: sequence of numbers
+        actual: actual value
+
+        returns: float mean error
+        """
+        errors = [estimate-actual for estimate in estimates]
+        return np.mean(errors)
+
+
+    def RMSE(self, estimates, actual):
+        """Computes the root mean squared error of a sequence of estimates.
+
+        estimate: sequence of numbers
+        actual: actual value
+
+        returns: float RMSE
+        """
+        e2 = [(estimate-actual)**2 for estimate in estimates]
+        mse = np.mean(e2)
+        return math.sqrt(mse)
+
+    
+    def SimulateSample(self, n=9, m=1000):
+        """Plots the sampling distribution of the sample mean.
+
+        mu: hypothetical population mean
+        sigma: hypothetical population standard deviation
+        n: sample size
+        m: number of iterations
+        """
+        def VertLine(x, y=1):
+            thinkplot.Plot([x, x], [0, y], color='0.8', linewidth=3)
+
+        means = []
+        for _ in range(m):
+            xs = genextreme.rvs(c=self.shape, loc=self.loc, scale=self.scale, size=n)
+            xbar = np.mean(xs)
+            means.append(xbar)
+
+        stderr = self.RMSE(means, self.loc)
+        print('Erro Padrão', stderr)
+
+        cdf = thinkstats2.Cdf(means)
+        ci = cdf.Percentile(5), cdf.Percentile(95)
+        print('Intervalo de Confiança: ', ci)
+        VertLine(ci[0])
+        VertLine(ci[1])
+
+        # plot the CDF
+        thinkplot.Cdf(cdf)
+        #thinkplot.Save(root='estimation1',
+         #              xlabel='sample mean',
+          #             ylabel='CDF',
+           #            title='Sampling distribution')
