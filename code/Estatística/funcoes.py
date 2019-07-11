@@ -2,6 +2,7 @@ import calendar as cal
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+import thinkplot
 
 def dados(dir, label):
     
@@ -34,8 +35,3 @@ def annual(dados, month_start_year_hydrologic):
     peak = pd.Series(max_vazao, index=idx_vazao, name='VMA')
 
     return peak
-
-def plot_pmf(dados, bins):
-    counts, binss = np.histogram(dados, bins=bins, density=True)
-    #binss = binss[:-1] + (binss[1] - binss[0])/2
-    plt.bar(binss, counts)
