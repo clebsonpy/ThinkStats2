@@ -5,6 +5,7 @@ import numpy as np
 import thinkplot
 import thinkstats2
 import scipy.stats as ss
+import genextre as gev
 
 def dados(dir, label):
     
@@ -126,4 +127,13 @@ def pareto_pdf(dados):
     x = np.sort(lin)
     pareto_pdf = ss.pareto.pdf(x, b=b, loc=loc, scale=scale)
     plt.plot(x, pareto_pdf, color='black')
+
+def remove_outlier(dados):
+    Q1 = dados.quantile(0.25)
+    Q3 = dados.quantile(0.75)
+    IQR = Q3 - Q1
+    trueList = ~((dados < (Q1 - 1.5 * IQR)) |(dados > (Q3 + 1.5 * IQR)))
+    return dados[trueList]
+
+    
     
