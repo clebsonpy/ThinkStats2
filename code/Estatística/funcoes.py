@@ -5,7 +5,8 @@ import numpy as np
 import thinkplot
 import thinkstats2
 import scipy.stats as ss
-import genextre as gev
+import random
+
 
 def dados(dir, label):
     
@@ -136,4 +137,59 @@ def remove_outlier(dados):
     return dados[trueList]
 
     
+def plot_gev(shape, loc, scale):
     
+    dist = ss.genextreme(c=shape, loc=loc, scale=scale)
+    xs = dist.rvs(size=100)
+    ys = dist.cdf(xs)
+    plt.plot(np.sort(xs), np.sort(ys))
+    return dist
+    
+class CoinTest(thinkstats2.HypothesisTest):
+
+    def TestStatistic(self, data):
+        heads, tails = data
+        test_stat = abs(heads - tails)
+        return test_stat
+
+    def RunModel(self):
+        heads, tails = self.data
+        n = heads + tails
+        sample = [random.choice('HT') for _ in range(n)]
+        hist = thinkstats2.Hist(sample)
+        data = hist['H'], hist['T']
+        return data
+
+class DiffMeansPermute(thinkstats2.HypothesisTest):
+
+    def TestStatistic(self, data):
+        group1, group2 = data
+        test_stat = abs(group1.mean() - group2.mean())
+        return test_stat
+
+    def MakeModel(self):
+        group1, group2 = self.data
+        self.n, self.m = len(group1), len(group2)
+        self.pool = np.hstack((group1, group2))
+
+    def RunModel(self):
+        np.random.shuffle(self.pool)
+        data = self.pool[:self.n], self.pool[self.n:]
+        return data
+
+class DiffStdPermute(thinkstats2.HypothesisTest):
+
+    def TestStatistic(self, data):
+        group1, group2 = data
+        test_stat = abs(group1.std() - group2.std())
+        return test_stat
+
+    def MakeModel(self):
+        group1, group2 = self.data
+        self.n, self.m = len(group1), len(group2)
+        self.pool = np.hstack((group1, group2))
+
+    def RunModel(self):
+        np.random.shuffle(self.pool)
+        data = self.pool[:self.n], self.pool[self.n:]
+        return data
