@@ -193,3 +193,57 @@ class DiffStdPermute(thinkstats2.HypothesisTest):
         np.random.shuffle(self.pool)
         data = self.pool[:self.n], self.pool[self.n:]
         return data
+    
+class CorrelationPermute(thinkstats2.HypothesisTest):
+
+    def TestStatistic(self, data):
+        xs, ys = data
+        test_stat = abs(thinkstats2.Corr(xs, ys))
+        return test_stat
+
+    def RunModel(self):
+        xs, ys = self.data
+        xs = np.random.permutation(xs)
+        return xs, ys
+
+
+class DiceChiTest(thinkstats2.HypothesisTest):
+
+    def TestStatistic(self, data):
+        observed, expected = data
+        test_stat = sum((observed - expected)**2 / expected)
+        return test_stat
+    
+    def RunModel(self):
+        xs, ys = self.data
+        xs = np.random.permutation(xs)
+        return xs, ys
+
+
+class PregLengthTest(thinkstats2.HypothesisTest):
+    
+    def TestStatistic(self, data):
+        observado, esperado = data
+        stat = self.ChiSquared(observado) + self.ChiSquared(esperado)
+        return stat
+
+    def ChiSquared(self, lengths):
+        hist = thinkstats2.Hist(lengths)
+        observed = np.array(hist.Freqs(self.values))
+        expected = self.expected_probs * len(lengths)
+        stat = sum((observed - expected)**2 / expected)
+        return stat
+    
+    def MakeModel(self):
+        observado, esperado = self.data
+        self.n = len(observado)
+        self.pool = np.hstack((observado, esperado))
+
+        pmf = thinkstats2.Pmf(self.pool)
+        self.values = observado
+        self.expected_probs = np.array(pmf.Probs(self.values))
+
+    def RunModel(self):
+        np.random.shuffle(self.pool)
+        data = self.pool[:self.n], self.pool[self.n:]
+        return data
