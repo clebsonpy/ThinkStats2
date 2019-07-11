@@ -91,3 +91,41 @@ def normal_cdf(dados, label):
     x = np.sort(lin)
     normal = ss.norm.cdf(x, mean, std_dev)
     plt.plot(x, normal, color='black', label=label)
+    
+def lognormal_pdf(dados):
+    
+    mean = dados.mean()
+    std_dev = dados.std()
+    lin = ss.lognorm.rvs(s=1, size=1000, loc=mean, scale=std_dev) 
+    x = np.sort(lin)
+    normal = ss.lognorm.pdf(x, mean, std_dev)
+    plt.plot(x, normal, color='black')
+
+    
+def lognormal_cdf(dados, label):
+    
+    mean = dados.mean()
+    std_dev = dados.std()
+    lin = ss.lognorm.rvs(s=1, size=1000, loc=mean, scale=std_dev)
+    x = np.sort(lin)
+    normal = ss.lognorm.cdf(x, mean, std_dev)
+    plt.plot(x, normal, color='black', label=label)
+
+    
+def pareto_cdf(dados, label):
+
+    b, loc, scale = ss.pareto.fit(dados)
+    lin = ss.pareto.rvs(b=1, size=1000, loc=loc, scale=scale)
+    x = np.sort(lin)
+    pareto_cdf = ss.pareto.cdf(x, b, loc, scale)
+    pĺt.plot(x, pareto_cdf, color='black')
+    
+def pareto_pdf(dados):
+    
+    import matplotlib.pyplot as plt
+    b, loc, scale = ss.pareto.fit(dados)
+    lin = ss.pareto.rvs(b=b, size=1000, loc=loc, scale=scale)
+    x = np.sort(lin)
+    pareto_pdf = ss.pareto.pdf(x, b=b, loc=loc, scale=scale)
+    pĺt.plot(x, pareto_pdf, color='black')
+    
