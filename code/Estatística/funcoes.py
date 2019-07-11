@@ -247,3 +247,54 @@ class PregLengthTest(thinkstats2.HypothesisTest):
         np.random.shuffle(self.pool)
         data = self.pool[:self.n], self.pool[self.n:]
         return data
+
+def SamplingDistributions(dados_chuva, dados_vazao, iters=101):
+    dados = pd.DataFrame([dados_chuva, dados_vazao])
+    dados = dados.T
+    t = []
+    for _ in range(iters):
+        sample = thinkstats2.ResampleRows(dados)
+        chuva = sample["COIMBRA_P"]
+        vazao = sample["COIMBRA_F"]
+        estimates = thinkstats2.LeastSquares(chuva, vazao)
+        t.append(estimates)
+
+    inters, slopes = zip(*t)
+    return inters, slopes
+        
+def Summarize(estimates, actual=None):
+    mean = thinkstats2.Mean(estimates)
+    stderr = thinkstats2.Std(estimates, mu=actual)
+    cdf = thinkstats2.Cdf(estimates)
+    ci = cdf.ConfidenceInterval(90)
+    print('mean: ', mean,  
+          '\nSE: ',stderr, 
+          '\nCI: ', ci)
+
+def PlotConfidenceIntervals(xs, inters, slopes, percent=90, **options):
+    fys_seq = []
+    for inter, slope in zip(inters, slopes):
+        fxs, fys = thinkstats2.FitLine(xs, inter, slope)
+        fys_seq.append(fys)
+
+    p = (100 - percent) / 2
+    percents = p, 100 - p
+    low, high = thinkstats2.PercentileRows(fys_seq, percents)
+    thinkplot.FillBetween(fxs, low, high, **options)
+
+class SlopeTest(thinkstats2.HypothesisTest):
+
+    def TestStatistic(self, data):
+        chuva, vazao = data
+        _, slope = thinkstats2.LeastSquares(chuva, vazao)
+        return slope
+
+    def MakeModel(self):
+        _, vazao= self.data
+        self.ybar = vazao.mean()
+        self.res = vazao - self.ybar
+
+    def RunModel(self):
+        chuva, _ = self.data
+        vazao = self.ybar + np.random.permutation(self.res)
+        return chuva, vazao
