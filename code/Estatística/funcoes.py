@@ -6,6 +6,7 @@ import thinkplot
 import thinkstats2
 import scipy.stats as ss
 import random
+import survival
 
 
 def dados(dir, label):
@@ -298,3 +299,34 @@ class SlopeTest(thinkstats2.HypothesisTest):
         chuva, _ = self.data
         vazao = self.ybar + np.random.permutation(self.res)
         return chuva, vazao
+    
+def EstimateMarriageSurvival(dados, limiar, label=""):
+    
+    complete = dados[dados >= limiar].dropna()
+    ongoing = dados[dados < limiar]
+
+    hf = survival.EstimateHazardFunction(complete, ongoing, label=label)
+    sf = hf.MakeSurvival()
+
+    return hf, sf
+
+def ResampleSurvival(dados, limiar, iters=101):
+    """Resamples respondents and estimates the survival function.
+
+    resp: DataFrame of respondents
+    iters: number of resamples
+    """ 
+    _, sf = EstimateMarriageSurvival(dados, limiar)
+    thinkplot.Plot(sf)
+
+    low, high = dados.min(), dados.max()
+    ts = np.arange(low, high, 1)
+
+    ss_seq = []
+    for _ in range(iters):
+        sample = thinkstats2.ResampleRowsWeighted(pd.DataFrame(dados), column='MANSO')
+        _, sf = EstimateMarriageSurvival(sample['MANSO'], limiar)
+        ss_seq.append(sf.Probs(ts))
+    
+    low, high = thinkstats2.PercentileRows(ss_seq, [5, 95])
+    thinkplot.FillBetween(ts, low, high, color='gray', label='90% CI')
